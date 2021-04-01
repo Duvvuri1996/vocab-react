@@ -1,24 +1,22 @@
-import { axios } from 'axios';
-import { ApiConstants } from '../constants/apiconstants';
-
+import axios from 'axios';
+//import BASE_URL from '../constants/apiconstants';
+const url = 'http://localhost:8080/api/v1/';
+const config = {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS"
+    }
+  };
 const getAllWords = () => {
-    return axios.get(ApiConstants.BASE_URL+ 'getAll')
+    return axios.get(`${url}getAll`, config)
 }
 
-const getWord = (wordId) => {
-    return axios.post(ApiConstants.BASE_URL+ 'getVocab', {
-        params : {
-            wordId : wordId
-        }
-    })
+const getVocabWord = (wordId) => {
+    return axios.get(`${url}getVocab/${wordId}`, config)
 }
 
-const createWord = (wordId) => {
-    return axios.post(ApiConstants.BASE_URL+ 'createVocab', {
-        params : {
-            wordId :wordId
-        }
-    })
+const createVocabWord = (wordId) => {
+    return axios.post(`${url}createVocab/${wordId}`, config)
 }
 
-export { getAllWords, getWord, createWord };
+export { getAllWords, getVocabWord, createVocabWord };

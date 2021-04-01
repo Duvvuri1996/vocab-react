@@ -1,22 +1,21 @@
-import React from 'react';
+import React from 'react'; //useEffect similar to componentDidMount
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import App from './components/App';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Provider } from 'react-redux';
 import {createStore, applyMiddleware} from 'redux'
 import thunk from 'redux-thunk';
-import reducers from '../src/reducers';
+import reducers from '../src/reducers/result';
+
 
 const store = createStore(reducers, applyMiddleware(thunk));
 
 ReactDOM.render(
-  <React.StrictMode>
     <Provider store={store}>
     <App />
-    </Provider>
-  </React.StrictMode>,
+    </Provider>,
   document.getElementById('root')
 );
 

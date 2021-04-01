@@ -1,8 +1,9 @@
 import ActionConstants from '../constants/actionconstant';
-import * as api from '../api/api';
+import { getAllWords, getVocabWord, createVocabWord } from '../api/api';
 
 const getAll = () => {
-    api.getAllWords().then((apiResponse) => {
+    getAllWords().then((apiResponse) => {
+        console.log(apiResponse.data.data[0].definition)
         return (dispatch) => {
             if(apiResponse.status === 200){
                 dispatch({
@@ -25,7 +26,8 @@ const getAll = () => {
 }
 
 const getWord = (wordId) => {
-    api.getWord(wordId).then((apiResponse) => {
+    getVocabWord(wordId).then((apiResponse) => {
+        console.log(apiResponse.data)
         return(dispatch) => {
             if(apiResponse.status === 200){
                 dispatch({
@@ -48,7 +50,8 @@ const getWord = (wordId) => {
 }
 
 const createWord = (wordId) => {
-    api.createWord(wordId).then((apiResponse) => {
+    createVocabWord(wordId).then((apiResponse) => {
+        console.log(apiResponse)
         return(dispatch) => {
             if(apiResponse.status === 200){
                 dispatch({
@@ -74,7 +77,7 @@ const updateSearch = (wordId) => {
     return (dispatch) => {
         dispatch({
             type : ActionConstants.SEARCH,
-            payload : word
+            payload : wordId
         })
     }
 }
