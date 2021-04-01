@@ -45,8 +45,8 @@ function View (props) {
 
  return (
      <React.Fragment>
-         <Dialog open={props.isOpen} onClose={props.closeDialog}>
-         <DialogTitle id="scroll-dialog-title">Subscribe</DialogTitle>
+      <Dialog open={props.isOpen} onClose={props.closeDialog}>
+      <DialogTitle id="scroll-dialog-title">Subscribe</DialogTitle>
         <DialogContent>
           <DialogContentText
             id="scroll-dialog-description"
@@ -57,7 +57,7 @@ function View (props) {
           </DialogContentText>
           
         </DialogContent>
-         </Dialog>
+      </Dialog>
      </React.Fragment>
  )
 }

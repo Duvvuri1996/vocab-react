@@ -11,23 +11,26 @@ import {
     ListItemText,
     Divider,
     Tooltip,
-    InputBase} from '@material-ui/core';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
+    Slide,
+    CircularProgress,
+    Button,
+    TextField,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    CssBaseline,
+    Container,
+    ListItemSecondaryAction} from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
+import CloseIcon from '@material-ui/icons/Close';
+import { CheckIcon, SuccessIcon } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Container from '@material-ui/core/Container';
 import SearchIcon from '@material-ui/icons/Search';
-import Search from '../seacrhModal/modal';
-import View from '../viewModal/view';
 import {  getAllWords, getVocabWord, createVocabWord  } from '../../api/api';
 import { connect } from 'react-redux';
+import Alert from '@material-ui/lab/Alert';
 
 const drawerWidth = 240;
 const useStyles = makeStyles((theme) => ({
@@ -62,26 +65,38 @@ const useStyles = makeStyles((theme) => ({
         iconbutton:{
             right: theme.spacing(2)
         }
+      },
+      search: {
+        backgroundColor: '#84155f'
       }
   }));
-const messages = [];
+const Transition = React.forwardRef(function Transition(props, ref) {
+  console.log(props, ref)
+  return (<Slide direction="up" ref={ref} {...props} />);
+});
+
 function Layout(props) {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
     const [search, setSearch] = React.useState(false);
+    const [searchResult, setSearchResult] = React.useState([])
     const [view, setView] = React.useState(false);
     const [state, setState] = React.useState([])
     const [value, setValue] = React.useState('')
-    const [createValue, setCreate] = React.useState('')
+    const [createValue, setCreate] = React.useState('');
+    const [loading, setLoading] = React.useState(false);
+    const [success, setSuccess] = React.useState(false);
+
+
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  //setOpen(props.values.open)
   const handleClose = () => {
     setOpen(false);
   };
   const handleSearchClick = (e) => {
-      console.log(e.target.value)
     setSearch(true);
   };
 
@@ -89,13 +104,14 @@ function Layout(props) {
     setSearch(false);
   };
   const handleViewClick = (e) => {
-      console.log(e.target)
-    setView(true);
+      setView(true);
   };
 
   const handleViewClose = () => {
-    setView(false);
+    setView(false)
   };
+
+
 useEffect(() => {
    getAllwords();
 }, [value])
@@ -104,32 +120,153 @@ let getAllwords = () => {
     getAllWords().then((apiResponse) => {
         if(apiResponse.status === 200){
             let data = apiResponse.data.data
-            data.forEach((element) => {
-                let d = {
-                    id : element._id,
-                    word : element.word,
-                    definition : element.definition
+            var messages = [];
+            var etymology=[];
+            var note = [];
+            var definition = [];
+            var sense = [];
+            var short = [];
+            if(data){
+              data.forEach(element => {
+                var word = element.word[0].toUpperCase()+element.word.slice(1)
+                var res = JSON.parse(element.definition)
+                var lexical = res[0].lexicalCategory.text
+                var definition=''
+                res[0].entries[0].senses[0].definitions.forEach((el) => {
+                  definition+=el
+                })
+                var example = res[0].entries[0].senses[0].examples[0].text
+                let obj = {
+                  word : element.word[0].toUpperCase()+element.word.slice(1),
+                  lexical : res[0].lexicalCategory.text,
+                  definition : `def : ${definition}`,
+                  example : `ex: ${res[0].entries[0].senses[0].examples[0].text}`
                 }
-                messages.push(d)
+                messages.push(obj)
+                // res.forEach((item) => {
+                //   console.log(item)
+                //   if(item.etymologies){
+                //     item.etymologies.forEach((el) => {
+                //       etymology.push(el)
+                //     })
+                //     console.log(etymology)
+                //     messages.push(etymology)
+                //   }
+                //   if(item.notes){
+                //     item.notes.forEach((el) => {
+                //       note.push(el.text)
+                //     })
+                //     console.log(note)
+                //     messages.push(note)
+                //   }
+                //   if(item.pronunciations){
+                //       let obj = {
+                //         notation : item.pronunciations[0].phoneticNotation,
+                //         spelling : item.pronunciations[0].phoneticSpelling
+                //     }
+                //     console.log(obj)
+                //     messages.push(obj)
+                //   }
+                //   if(item.senses){
+                //     item.senses[0].definitions.forEach((el) => {
+                //       definition.push(el)
+                //       console.log(definition)
+                //     })
+                //     item.senses[0].examples.forEach((el) => {
+                //       let a = el.text
+                //       sense.push(a)
+                //       console.log(sense)
+                //     })
+                //     item.senses[0].shortDefinitions.forEach((el) => {
+                //       let b = el
+                //       short.push(b)
+                //     })
+                //     console.log(short)
+                //     messages.push(definition)
+                //     messages.push(sense)
+                //     messages.push(sense)
+                //   }
 
-            })
-            setState (data)
+                // })
+              });
+              setState ([...messages])
+            }
+            
         }
     })
 }
 const handleCreateChange = (e) => {
-    console.log(e.target.value)
     setCreate(e.target.value)
 }
 const handleAddClick = () => {
-   console.log(createValue)
    props.onTextenter(createValue)
+   setLoading(true)
+   setTimeout(() => {
+     createResult()
+   }, 5000)
 }
-// if(props.values === 'Successfull'){
-//     handleClose();
-// }
 
-if (messages){
+const createResult = () => {
+  setOpen(false)
+  setLoading(false);
+  getAllWords().then((apiResponse) => {
+    if(apiResponse.status === 200){
+      let data = apiResponse.data.data
+      var messages = [];
+      if(data){
+        data.forEach(element => {
+          var word = element.word[0].toUpperCase()+element.word.slice(1)
+          var res = JSON.parse(element.definition)
+          var lexical = res[0].lexicalCategory.text
+          var definition=''
+          res[0].entries[0].senses[0].definitions.forEach((el) => {
+            definition+=el
+          })
+          var example = res[0].entries[0].senses[0].examples[0].text
+          let obj = {
+            word : element.word[0].toUpperCase()+element.word.slice(1),
+            lexical : res[0].lexicalCategory.text,
+            definition : `def : ${definition}`,
+            example : `ex: ${res[0].entries[0].senses[0].examples[0].text}`
+          }
+          messages.push(obj)
+        });
+        setState ([...messages])
+
+      }
+   }
+  })
+  setSuccess(true);
+}
+
+const searchIssue = (e) => {
+  getVocabWord(e.target.value).then((apiResponse) => {
+    if(apiResponse.data.status === 200){
+      let data = apiResponse.data.data
+      var messages=[];
+      if(data){
+        data.forEach(element => {
+          var word = element.word[0].toUpperCase()+element.word.slice(1)
+          var res = JSON.parse(element.definition)
+          var lexical = res[0].lexicalCategory.text
+          var definition=''
+          res[0].entries[0].senses[0].definitions.forEach((el) => {
+            definition+=el
+          })
+          var example = res[0].entries[0].senses[0].examples[0].text
+          let obj = {
+            word : element.word[0].toUpperCase()+element.word.slice(1),
+            lexical : res[0].lexicalCategory.text,
+            definition : `def : ${definition}`,
+            example : `ex: ${res[0].entries[0].senses[0].examples[0].text}`
+          }
+          messages.push(obj)
+        });
+        setSearchResult([...messages])
+      }
+    }
+  })
+}
     return (
         <React.Fragment>
         <CssBaseline />
@@ -143,7 +280,6 @@ if (messages){
                 <SearchIcon />
             </IconButton>
             </Tooltip>
-            <Search isOpen={search} closeDialog={handleSearchClose}></Search>
           </Toolbar>
         </AppBar>
         <Toolbar id="back-to-top-anchor" />
@@ -155,17 +291,26 @@ if (messages){
             </Typography>
             <Divider variant='middle' />
             <List className={classes.list}>
-              {state.map((object, i) => (
-                    <React.Fragment key={i}>
+              {state!=null?state.map((object, i) => (
+                  <React.Fragment key={i}>
+                    <Typography
+                        variant="h2" >
                   <ListItem button onClick={handleViewClick}>
                     <ListItemText primary={object.word}
-                                secondary={object.definition}
-                                   />
+                                secondary={
+                                  <React.Fragment>
+                                    <ListItemText primary={object.lexical}
+                                    secondary={object.definition}/>
+                                    <ListItemText primary={object.example}
+                                   />   
+                                  </React.Fragment>
+                                }
+                    />
                   </ListItem>
                   <Divider variant='middle' />
+                  </Typography>
                 </React.Fragment>
-              ))}
-              <View isOpen={view} closeDialog={handleViewClose}></View>
+              )) : null }
             </List>
           </Paper>
         </Container>
@@ -177,7 +322,7 @@ if (messages){
           </Tooltip>
         </Toolbar>
         <Dialog
-            open={open}
+            open={open }
             onClose={handleClose}
             aria-labelledby="form-dialog-title"
           >
@@ -197,19 +342,83 @@ if (messages){
               />
             </DialogContent>
             <DialogActions>
-              <Button  onClick={handleClose} color="dark">
+              <Button  onClick={handleClose} color="primary">
                 Cancel
               </Button>
-              <Button color="dark" onClick={handleAddClick}>
+              <Button color="primary" onClick={handleAddClick}>
                 Add
               </Button>
+              {loading && <CircularProgress />}
             </DialogActions>
           </Dialog>
+          <Dialog fullScreen open={search} onClose={handleSearchClose} TransitionComponent={Transition}>
+        <AppBar className={classes.search}>
+          <Toolbar>
+          <IconButton edge="end" color="inherit" onClick={handleSearchClose} >
+              <CloseIcon />
+            </IconButton>
+            <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label=""
+            type="email"
+            fullWidth
+            color="primary"
+            onChange={searchIssue}
+          />
+          </Toolbar>
+        </AppBar>
+        <DialogContent>
+          <DialogContentText>
+          <Container>
+        <Paper square className={classes.paper}>
+            <Typography className={classes.text} 
+                        variant="h5" gutterBottom>
+              Words List
+            </Typography>
+            <Divider variant='middle' />
+            <List className={classes.list}>
+              {searchResult!=null?searchResult.map((object, i) => (
+                  <React.Fragment key={i}>
+                     <Typography
+                        variant="h2" >
+                  <ListItem button onClick={handleViewClick}>
+                    <ListItemText primary={object.word}
+                                secondary={
+                                  <React.Fragment>
+                                    <ListItemText primary={object.lexical}
+                                    secondary={object.definition}/>
+                                    <ListItemText primary={object.example}
+                                   />   
+                                  </React.Fragment>
+                                }
+                    />        
+                  </ListItem>
+                  <Divider variant='middle' />
+                  </Typography>
+                </React.Fragment>
+              )) : null }
+            </List>
+          </Paper>
+        </Container>
+          </DialogContentText>
+        </DialogContent>
+    </Dialog>
+    <Dialog fullScreen open={view} onClose={handleViewClose} TransitionComponent={Transition}>
+      <DialogTitle id="scroll-dialog-title">{}</DialogTitle>
+      <IconButton edge="start" color="inherit" onClick={handleViewClose} >
+              <CloseIcon />
+      </IconButton>
+        <DialogContent>
+          <DialogContentText
+          >
+          </DialogContentText>
+          
+        </DialogContent>
+      </Dialog>
       </React.Fragment>
-    )} else {
-        return null
-    }
-    
+    )
 }
 
 
@@ -219,7 +428,6 @@ const mapDispatchToProps =(dispatch) => {
     }
 }
 const mapStateToProps = (state) => {
-    console.log(state)
     return {
         values : state
     }

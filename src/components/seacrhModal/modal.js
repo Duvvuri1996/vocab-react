@@ -28,20 +28,18 @@ const useStyles = makeStyles((theme) => ({
 
 function Seacrh (props) {
     
-    const Transition = React.forwardRef(function Transition(props1, ref) {
-        console.log(props1, ref)
-        return (<Slide direction="up" ref={ref} {...props1} />);
+    const Transition = React.forwardRef(function Transition(props, ref) {
+        console.log(props, ref)
+        return (<Slide direction="up" ref={ref} {...props} />);
     });
     const classes = useStyles();
+    const[value, setValue] = React.useState('')
     const searchIssue = (e) => {
-        console.log(props.messages)
-    }
-    const handleClose = () => {
-
+        
     }
     return(
         <React.Fragment>
-        <Dialog fullScreen open={props.isOpen} onClose={props.closeDialog} TransitionComponent={Transition}>
+        <Dialog fullScreen ref={props.ref} open={props.isOpen} onClose={props.closeDialog} TransitionComponent={Transition}>
         <AppBar className={classes.appbar}>
         <TextField
             autoFocus
