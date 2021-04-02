@@ -67,11 +67,11 @@ const useStyles = makeStyles((theme) => ({
       search: {
         backgroundColor: '#84155f'
       },
-      overrides: {
+      
       multilineColor:{
-        color:'dark'
+        color:'secondary'
     }
-  }
+ 
   }));
 
 //To allow parent component to pass references of DOM element to their children 
@@ -318,6 +318,7 @@ const searchvocabWord = (e) => {
                 margin="dense"
                 id="name"
                 label=""
+                autoComplete='off'
                 type="text"
                 fullWidth
                 onChange={handleCreateChange}
@@ -347,6 +348,7 @@ const searchvocabWord = (e) => {
             autoFocus
             margin="dense"
             id="name"
+            autoComplete='off'
             label="Search..."
             type="email"
             fullWidth
