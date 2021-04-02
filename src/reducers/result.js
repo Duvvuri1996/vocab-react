@@ -1,5 +1,4 @@
-import ActionConstants from '../constants/actionconstant';
-import { getVocabWord, createVocabWord } from '../api/api';
+import { createVocabWord } from '../api/api';
 
 
 

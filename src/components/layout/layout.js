@@ -28,7 +28,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import SearchIcon from '@material-ui/icons/Search';
 import {  getAllWords, getVocabWord, searchVocabWord  } from '../../api/api';
 import { connect } from 'react-redux';
-import Alert from '@material-ui/lab/Alert';
 
 const drawerWidth = 240;
 const useStyles = makeStyles((theme) => ({
