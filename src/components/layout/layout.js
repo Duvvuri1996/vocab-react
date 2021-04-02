@@ -66,7 +66,12 @@ const useStyles = makeStyles((theme) => ({
       },
       search: {
         backgroundColor: '#84155f'
-      }
+      },
+      overrides: {
+      multilineColor:{
+        color:'dark'
+    }
+  }
   }));
 
 //To allow parent component to pass references of DOM element to their children 
@@ -247,7 +252,7 @@ const searchvocabWord = (e) => {
         {/* View of words list */}
         <AppBar className={classes.appbar}>
           <Toolbar>
-            <Typography variant="h6">Vocab</Typography>
+            <Typography variant="h4"><strong>Dictionary</strong></Typography>
             
             <Tooltip title='Search'>
             <IconButton onClick={handleSearchClick} aria-label="search" color="inherit">
@@ -261,7 +266,7 @@ const searchvocabWord = (e) => {
         <Paper square className={classes.paper}>
             <Typography className={classes.text} 
                         variant="h5" gutterBottom>
-              Words List
+              <strong>Words List</strong>
             </Typography>
             <Divider variant='middle' />
             <List className={classes.list}>
@@ -270,7 +275,7 @@ const searchvocabWord = (e) => {
                     <Typography
                         variant="h2" >
                   <ListItem button  onClick={() => {handleViewClick(object)}}>
-                    <ListItemText primary={object.word}
+                    <ListItemText primary={<strong >{object.word}</strong>}
                                 secondary={
                                   <React.Fragment>
                                     <ListItemText primary={object.lexical}
@@ -338,13 +343,13 @@ const searchvocabWord = (e) => {
               <CloseIcon />
             </IconButton>
             <TextField
+            className={classes.multilineColor}
             autoFocus
             margin="dense"
             id="name"
-            label=""
+            label="Search..."
             type="email"
             fullWidth
-            color="primary"
             onChange={searchvocabWord}
           />
           </Toolbar>
@@ -364,7 +369,7 @@ const searchvocabWord = (e) => {
                      <Typography
                         variant="h2" >
                   <ListItem button onClick={() => {handleViewClick(object)}}>
-                    <ListItemText primary={object.word}
+                    <ListItemText primary={<strong>{object.word}</strong>}
                                 secondary={
                                   <React.Fragment>
                                     <ListItemText primary={object.lexical}
@@ -394,25 +399,27 @@ const searchvocabWord = (e) => {
                     <CloseIcon />
     </IconButton>
     <DialogTitle>
-            {vocabName}
+            <strong>{vocabName}</strong>
     </DialogTitle>
     </Toolbar>
       <DialogContent>
       {viewVocab != null?viewVocab.map((object, i) => (
         <React.Fragment key={i}>
             <DialogContent >
+            <strong>
             {" ("}
             {object.lexicalCategory.text}
             {") "}
+            </strong>
             <DialogContentText>
              {object.entries.map((item, i) => (
                <React.Fragment key={i}>
-                 {"Def :"}
+                 {<strong>{"Def :"}</strong>}
                  {item.senses?item.senses[0].definitions[0]:null}
                  {"; "}
                  {item.senses?item.senses[0].shortDefinitions[0]:null}
                  <DialogContentText>
-                   {"Ex: "}
+                   {<strong>{"Ex: "}</strong>}
                  {item.senses?item.senses[0].examples[0].text:null}
                  </DialogContentText>
                  <DialogContentText>
@@ -422,7 +429,7 @@ const searchvocabWord = (e) => {
                  {item.grammaticalFeatures? item.grammaticalFeatures[0].text:null}
                  </DialogContentText>
                  <DialogContentText>
-                  {item.pronunciations?"Pronunciation: ": null}
+                  {item.pronunciations?<strong>{"Pronunciation: "}</strong>: null}
                  {item.pronunciations? item.pronunciations.map((el, i) => (
                    <React.Fragment key={i}>
                      <DialogContentText>
@@ -431,7 +438,7 @@ const searchvocabWord = (e) => {
                    </React.Fragment>
              )): null}
                  </DialogContentText>
-                 {item.senses[0].synonyms? "Synonyms: ":null}
+                 {item.senses[0].synonyms? <strong>{"Synonyms: "}</strong>:null}
                  {item.senses[0].synonyms?item.senses[0].synonyms.map((el, i) => (
                    <React.Fragment key={i}>
                      {el.text}
@@ -441,11 +448,11 @@ const searchvocabWord = (e) => {
                  <DialogContentText>
                    {item.senses[0].subsenses?
                    <React.Fragment>
-                     {"Subsenses: "}
+                     {<strong>{"Subsenses: "}</strong>}
                      <DialogContentText>
                      {item.senses[0].subsenses[0].definitions?
                     <DialogContentText>
-                      {"def: "}
+                      {<strong color={"#0f0f10"}>{"def: "}</strong>}
                       {item.senses[0].subsenses[0].definitions[0]}
                     </DialogContentText>: null
                     }
@@ -453,7 +460,7 @@ const searchvocabWord = (e) => {
                     <DialogContentText>
                      {item.senses[0].subsenses[0].examples?
                     <DialogContentText>
-                      {"ex: "}
+                      {<strong>{"ex: "}</strong>}
                       {item.senses[0].subsenses[0].examples[0].text}
                       </DialogContentText>: null 
                     }
