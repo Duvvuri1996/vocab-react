@@ -141,7 +141,6 @@ const getVocab = (word) => {
         if(data){
           data.forEach((element) => {
             var res = JSON.parse(element.definition)
-            console.log(res)
             setViewVocab([...res])
             setVocabName(word)
           })
@@ -503,7 +502,6 @@ const mapDispatchToProps =(dispatch) => {
  * To get recent state to props
 */
 const mapStateToProps = (state) => {
-  console.log(state)
   return state
 }
 

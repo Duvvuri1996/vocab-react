@@ -18,6 +18,5 @@ export default (state =  null, action) => {
             }
         })
     }
-    console.log(newState)
     return newState
 }
