@@ -1,6 +1,6 @@
 import axios from 'axios';
 //import BASE_URL from '../constants/apiconstants';
-const url = 'http://localhost:8080/api/v1/';
+const url = 'https://app-vocab.herokuapp.com/';
 const config = {
     headers: {
       "Access-Control-Allow-Origin": "*",
