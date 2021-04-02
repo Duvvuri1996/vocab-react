@@ -15,8 +15,12 @@ const getVocabWord = (wordId) => {
     return axios.get(`${url}getVocab/${wordId}`, config)
 }
 
+const searchVocabWord = (wordId) => {
+  return axios.get(`${url}searchVocab/${wordId}`, config)
+}
+
 const createVocabWord = (wordId) => {
     return axios.post(`${url}createVocab/${wordId}`, config)
 }
 
-export { getAllWords, getVocabWord, createVocabWord };
+export { getAllWords, getVocabWord, createVocabWord, searchVocabWord };

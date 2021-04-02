@@ -21,14 +21,12 @@ import {
     DialogContentText,
     DialogTitle,
     CssBaseline,
-    Container,
-    ListItemSecondaryAction} from '@material-ui/core';
+    Container} from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import CloseIcon from '@material-ui/icons/Close';
-import { CheckIcon, SuccessIcon } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import SearchIcon from '@material-ui/icons/Search';
-import {  getAllWords, getVocabWord, createVocabWord  } from '../../api/api';
+import {  getAllWords, getVocabWord, searchVocabWord  } from '../../api/api';
 import { connect } from 'react-redux';
 import Alert from '@material-ui/lab/Alert';
 
@@ -70,29 +68,30 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: '#84155f'
       }
   }));
+
+//To allow parent component to pass references of DOM element to their children 
 const Transition = React.forwardRef(function Transition(props, ref) {
-  console.log(props, ref)
   return (<Slide direction="up" ref={ref} {...props} />);
 });
 
 function Layout(props) {
     const classes = useStyles();
-    const [open, setOpen] = React.useState(false);
-    const [search, setSearch] = React.useState(false);
-    const [searchResult, setSearchResult] = React.useState([])
-    const [view, setView] = React.useState(false);
-    const [state, setState] = React.useState([])
+    const [open, setOpen] = React.useState(false);               //To view Add Dialog Box 
+    const [search, setSearch] = React.useState(false);           //Search Vocab
+    const [searchResult, setSearchResult] = React.useState([])   //Vocab Search result
+    const [view, setView] = React.useState(false);               //To view Vocab Dialog view
+    const [state, setState] = React.useState([])                 //Words list result
     const [value, setValue] = React.useState('')
-    const [createValue, setCreate] = React.useState('');
-    const [loading, setLoading] = React.useState(false);
-    const [success, setSuccess] = React.useState(false);
+    const [createValue, setCreate] = React.useState('');         //To Add vocab to the list
+    const [loading, setLoading] = React.useState(false);         //To view spinner onClick of Add button
+    const [success, setSuccess] = React.useState(false);         
+    const [viewVocab, setViewVocab] = React.useState([]);        //view vocab result
+    const [vocabName, setVocabName] = React.useState('');
 
-
-  const handleClickOpen = () => {
+  const handleClickOpen = () => {  
     setOpen(true);
   };
-
-  //setOpen(props.values.open)
+  
   const handleClose = () => {
     setOpen(false);
   };
@@ -103,29 +102,55 @@ function Layout(props) {
   const handleSearchClose = () => {
     setSearch(false);
   };
-  const handleViewClick = (e) => {
+  const handleViewClick = (object, e) => {
       setView(true);
+      getVocab(object.word);
   };
 
   const handleViewClose = () => {
-    setView(false)
+    setView(false);
+    
   };
+  const handleCreateChange = (e) => {
+    setCreate(e.target.value)
+}
 
+const handleAddClick = () => {
+   props.onTextenter(createValue)
+   setLoading(true)
+   setTimeout(() => {
+     createResult()
+   }, 5000)
+}
 
-useEffect(() => {
+//To get list of words after component render
+useEffect(() => { 
    getAllwords();
 }, [value])
 
+
+const getVocab = (word) => {
+  getVocabWord(word).then((apiResponse) => {
+    if(apiResponse.data.status === 200){
+        let data = apiResponse.data.data
+        if(data){
+          data.forEach((element) => {
+            var res = JSON.parse(element.definition)
+            console.log(res)
+            setViewVocab([...res])
+            setVocabName(word)
+          })
+        }
+    }
+})
+}
+
+//Start Get All vocabs function
 let getAllwords = () => {
     getAllWords().then((apiResponse) => {
         if(apiResponse.status === 200){
             let data = apiResponse.data.data
             var messages = [];
-            var etymology=[];
-            var note = [];
-            var definition = [];
-            var sense = [];
-            var short = [];
             if(data){
               data.forEach(element => {
                 var word = element.word[0].toUpperCase()+element.word.slice(1)
@@ -143,69 +168,15 @@ let getAllwords = () => {
                   example : `ex: ${res[0].entries[0].senses[0].examples[0].text}`
                 }
                 messages.push(obj)
-                // res.forEach((item) => {
-                //   console.log(item)
-                //   if(item.etymologies){
-                //     item.etymologies.forEach((el) => {
-                //       etymology.push(el)
-                //     })
-                //     console.log(etymology)
-                //     messages.push(etymology)
-                //   }
-                //   if(item.notes){
-                //     item.notes.forEach((el) => {
-                //       note.push(el.text)
-                //     })
-                //     console.log(note)
-                //     messages.push(note)
-                //   }
-                //   if(item.pronunciations){
-                //       let obj = {
-                //         notation : item.pronunciations[0].phoneticNotation,
-                //         spelling : item.pronunciations[0].phoneticSpelling
-                //     }
-                //     console.log(obj)
-                //     messages.push(obj)
-                //   }
-                //   if(item.senses){
-                //     item.senses[0].definitions.forEach((el) => {
-                //       definition.push(el)
-                //       console.log(definition)
-                //     })
-                //     item.senses[0].examples.forEach((el) => {
-                //       let a = el.text
-                //       sense.push(a)
-                //       console.log(sense)
-                //     })
-                //     item.senses[0].shortDefinitions.forEach((el) => {
-                //       let b = el
-                //       short.push(b)
-                //     })
-                //     console.log(short)
-                //     messages.push(definition)
-                //     messages.push(sense)
-                //     messages.push(sense)
-                //   }
-
-                // })
               });
-              setState ([...messages])
+              setState ([...messages]) //to update state
             }
-            
         }
     })
 }
-const handleCreateChange = (e) => {
-    setCreate(e.target.value)
-}
-const handleAddClick = () => {
-   props.onTextenter(createValue)
-   setLoading(true)
-   setTimeout(() => {
-     createResult()
-   }, 5000)
-}
+//End Get All Vocabs function
 
+//Start create vocab function
 const createResult = () => {
   setOpen(false)
   setLoading(false);
@@ -231,16 +202,17 @@ const createResult = () => {
           }
           messages.push(obj)
         });
-        setState ([...messages])
+        setState ([...messages]) //to update state
 
       }
    }
   })
   setSuccess(true);
-}
+} //end create vocab function
 
-const searchIssue = (e) => {
-  getVocabWord(e.target.value).then((apiResponse) => {
+//Start search vocab function
+const searchvocabWord = (e) => {
+  searchVocabWord(e.target.value).then((apiResponse) => {
     if(apiResponse.data.status === 200){
       let data = apiResponse.data.data
       var messages=[];
@@ -266,12 +238,14 @@ const searchIssue = (e) => {
       }
     }
   })
-}
+} //end of search vocab function
+
+
     return (
-        <React.Fragment>
+    <React.Fragment>
         <CssBaseline />
+        {/* View of words list */}
         <AppBar className={classes.appbar}>
-        
           <Toolbar>
             <Typography variant="h6">Vocab</Typography>
             
@@ -295,7 +269,7 @@ const searchIssue = (e) => {
                   <React.Fragment key={i}>
                     <Typography
                         variant="h2" >
-                  <ListItem button onClick={handleViewClick}>
+                  <ListItem button  onClick={() => {handleViewClick(object)}}>
                     <ListItemText primary={object.word}
                                 secondary={
                                   <React.Fragment>
@@ -310,7 +284,7 @@ const searchIssue = (e) => {
                   <Divider variant='middle' />
                   </Typography>
                 </React.Fragment>
-              )) : null }
+              )) : <ListItemText>{"Empty List..."}</ListItemText> }
             </List>
           </Paper>
         </Container>
@@ -321,6 +295,9 @@ const searchIssue = (e) => {
           </Fab>
           </Tooltip>
         </Toolbar>
+        {/*End words list view*/}
+
+        {/* View of Add Word Dialog */}
         <Dialog
             open={open }
             onClose={handleClose}
@@ -351,7 +328,10 @@ const searchIssue = (e) => {
               {loading && <CircularProgress />}
             </DialogActions>
           </Dialog>
-          <Dialog fullScreen open={search} onClose={handleSearchClose} TransitionComponent={Transition}>
+          {/* End Add to dictionary view */}
+
+          {/*View of Search word dialog */}
+        <Dialog fullScreen open={search} onClose={handleSearchClose} TransitionComponent={Transition}>
         <AppBar className={classes.search}>
           <Toolbar>
           <IconButton edge="end" color="inherit" onClick={handleSearchClose} >
@@ -365,7 +345,7 @@ const searchIssue = (e) => {
             type="email"
             fullWidth
             color="primary"
-            onChange={searchIssue}
+            onChange={searchvocabWord}
           />
           </Toolbar>
         </AppBar>
@@ -383,7 +363,7 @@ const searchIssue = (e) => {
                   <React.Fragment key={i}>
                      <Typography
                         variant="h2" >
-                  <ListItem button onClick={handleViewClick}>
+                  <ListItem button onClick={() => {handleViewClick(object)}}>
                     <ListItemText primary={object.word}
                                 secondary={
                                   <React.Fragment>
@@ -398,43 +378,128 @@ const searchIssue = (e) => {
                   <Divider variant='middle' />
                   </Typography>
                 </React.Fragment>
-              )) : null }
+              )) : <ListItemText>{"No Word"}</ListItemText>}
             </List>
           </Paper>
         </Container>
           </DialogContentText>
         </DialogContent>
     </Dialog>
-    <Dialog fullScreen open={view} onClose={handleViewClose} TransitionComponent={Transition}>
-      <DialogTitle id="scroll-dialog-title">{}</DialogTitle>
-      <IconButton edge="start" color="inherit" onClick={handleViewClose} >
-              <CloseIcon />
-      </IconButton>
-        <DialogContent>
-          <DialogContentText
-          >
-          </DialogContentText>
-          
-        </DialogContent>
+    {/*End Search words view */}
+
+    {/*Start View word on click of a specific word */}
+    <Dialog fullScreen open={view} onClose={handleViewClose} TransitionComponent={Transition} >
+    <Toolbar>
+    <IconButton edge="start" color="inherit" onClick={handleViewClose} >
+                    <CloseIcon />
+    </IconButton>
+    <DialogTitle>
+            {vocabName}
+    </DialogTitle>
+    </Toolbar>
+      <DialogContent>
+      {viewVocab != null?viewVocab.map((object, i) => (
+        <React.Fragment key={i}>
+            <DialogContent >
+            {" ("}
+            {object.lexicalCategory.text}
+            {") "}
+            <DialogContentText>
+             {object.entries.map((item, i) => (
+               <React.Fragment key={i}>
+                 {"Def :"}
+                 {item.senses?item.senses[0].definitions[0]:null}
+                 {"; "}
+                 {item.senses?item.senses[0].shortDefinitions[0]:null}
+                 <DialogContentText>
+                   {"Ex: "}
+                 {item.senses?item.senses[0].examples[0].text:null}
+                 </DialogContentText>
+                 <DialogContentText>
+                 {item.etymologies?item.etymologies[0]:null}
+                 </DialogContentText>
+                 <DialogContentText>
+                 {item.grammaticalFeatures? item.grammaticalFeatures[0].text:null}
+                 </DialogContentText>
+                 <DialogContentText>
+                  {item.pronunciations?"Pronunciation: ": null}
+                 {item.pronunciations? item.pronunciations.map((el, i) => (
+                   <React.Fragment key={i}>
+                     <DialogContentText>
+                     { el.phoneticSpelling}
+                   </DialogContentText>
+                   </React.Fragment>
+             )): null}
+                 </DialogContentText>
+                 {item.senses[0].synonyms? "Synonyms: ":null}
+                 {item.senses[0].synonyms?item.senses[0].synonyms.map((el, i) => (
+                   <React.Fragment key={i}>
+                     {el.text}
+                     {", "}
+                   </React.Fragment>
+                 )): null}
+                 <DialogContentText>
+                   {item.senses[0].subsenses?
+                   <React.Fragment>
+                     {"Subsenses: "}
+                     <DialogContentText>
+                     {item.senses[0].subsenses[0].definitions?
+                    <DialogContentText>
+                      {"def: "}
+                      {item.senses[0].subsenses[0].definitions[0]}
+                    </DialogContentText>: null
+                    }
+                    </DialogContentText>
+                    <DialogContentText>
+                     {item.senses[0].subsenses[0].examples?
+                    <DialogContentText>
+                      {"ex: "}
+                      {item.senses[0].subsenses[0].examples[0].text}
+                      </DialogContentText>: null 
+                    }
+                   </DialogContentText>
+                   <DialogContentText>
+                     {item.senses[0].subsenses[0].shortDefinitions?
+                     <DialogContentText>{item.senses[0].subsenses[0].shortDefinitions[0]}</DialogContentText> :0}
+                   </DialogContentText>
+                   </React.Fragment>                   
+                     :null}
+                 </DialogContentText>
+               </React.Fragment>
+               ))}
+            </DialogContentText>
+            
+          </DialogContent>
+          <Divider variant="middle"/>
+        </React.Fragment>
+      )): 0}
+      </DialogContent>
       </Dialog>
+      {/*End View word on click of specific word */}
+
       </React.Fragment>
     )
 }
 
-
+/** 
+ * To extablish a connection between component to reducer
+*/
 const mapDispatchToProps =(dispatch) => {
     return {
-        onTextenter : (value) => {dispatch({type : 'ADD_WORD', value : value})} 
+        onTextenter : (value) => {dispatch({type :'ADD_WORD', value : value})}
     }
 }
+
+/** 
+ * To get recent state to props
+*/
 const mapStateToProps = (state) => {
-    return {
-        values : state
-    }
+  console.log(state)
+  return state
 }
 
 /**
  * connect is a function that gathers the store, the behavior and the view 
- * It returns the component that we really want to use
+ * It returns the component that which want to use
  */
 export default connect(mapStateToProps, mapDispatchToProps)(Layout);

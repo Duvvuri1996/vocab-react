@@ -10,7 +10,7 @@ import thunk from 'redux-thunk';
 import reducers from '../src/reducers/result';
 
 
-const store = createStore(reducers, applyMiddleware(thunk));
+const store = createStore(reducers, applyMiddleware(thunk)); //thunk to interact with a server or API call for async actions
 
 ReactDOM.render(
     <Provider store={store}>
