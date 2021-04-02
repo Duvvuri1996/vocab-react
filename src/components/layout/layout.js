@@ -157,19 +157,24 @@ let getAllwords = () => {
             var messages = [];
             if(data){
               data.forEach(element => {
-                var word = element.word[0].toUpperCase()+element.word.slice(1)
+                if(word){
+                  var word = element.word[0].toUpperCase()+element.word.slice(1)
+                }
+                
                 var res = JSON.parse(element.definition)
                 var lexical = res[0].lexicalCategory.text
                 var definition=''
                 res[0].entries[0].senses[0].definitions.forEach((el) => {
                   definition+=el
                 })
+                if(res[0].entries[0].senses[0].examples){
                 var example = res[0].entries[0].senses[0].examples[0].text
+                }
                 let obj = {
-                  word : element.word[0].toUpperCase()+element.word.slice(1),
+                  word : word?word:'',
                   lexical : res[0].lexicalCategory.text,
                   definition : `def : ${definition}`,
-                  example : `ex: ${res[0].entries[0].senses[0].examples[0].text}`
+                  example : example?`ex: ${example}`:''
                 }
                 messages.push(obj)
               });
@@ -190,19 +195,24 @@ const createResult = () => {
       var messages = [];
       if(data){
         data.forEach(element => {
-          var word = element.word[0].toUpperCase()+element.word.slice(1)
+          if(word){
+            var word = element.word[0].toUpperCase()+element.word.slice(1)
+          }
+          
           var res = JSON.parse(element.definition)
           var lexical = res[0].lexicalCategory.text
           var definition=''
           res[0].entries[0].senses[0].definitions.forEach((el) => {
             definition+=el
           })
+          if(res[0].entries[0].senses[0].examples){
           var example = res[0].entries[0].senses[0].examples[0].text
+          }
           let obj = {
-            word : element.word[0].toUpperCase()+element.word.slice(1),
+            word : word?word:'',
             lexical : res[0].lexicalCategory.text,
             definition : `def : ${definition}`,
-            example : `ex: ${res[0].entries[0].senses[0].examples[0].text}`
+            example : example?`ex: ${example}`:''
           }
           messages.push(obj)
         });
@@ -222,19 +232,24 @@ const searchvocabWord = (e) => {
       var messages=[];
       if(data){
         data.forEach(element => {
-          var word = element.word[0].toUpperCase()+element.word.slice(1)
+          if(word){
+            var word = element.word[0].toUpperCase()+element.word.slice(1)
+          }
+          
           var res = JSON.parse(element.definition)
           var lexical = res[0].lexicalCategory.text
           var definition=''
           res[0].entries[0].senses[0].definitions.forEach((el) => {
             definition+=el
           })
+          if(res[0].entries[0].senses[0].examples){
           var example = res[0].entries[0].senses[0].examples[0].text
+          }
           let obj = {
-            word : element.word[0].toUpperCase()+element.word.slice(1),
+            word : word?word:'',
             lexical : res[0].lexicalCategory.text,
             definition : `def : ${definition}`,
-            example : `ex: ${res[0].entries[0].senses[0].examples[0].text}`
+            example : example?`ex: ${example}`:''
           }
           messages.push(obj)
         });
